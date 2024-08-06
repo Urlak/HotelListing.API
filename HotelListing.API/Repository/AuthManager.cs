@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using HotelListing.API.Contracts;
+using HotelListing.API.Controllers;
 using HotelListing.API.Data;
+using HotelListing.API.Models.Country;
 using HotelListing.API.Models.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -10,13 +12,14 @@ using System.Text;
 
 namespace HotelListing.API.Repository
 {
-    public class AuthManager(IMapper mapper, UserManager<ApiUser> userManager, IConfiguration configuration) : IAuthManager
+    public class AuthManager(IMapper mapper, UserManager<ApiUser> userManager, IConfiguration configuration, ILogger<AuthManager> logger) : IAuthManager
     {
         private const string _loginProvider = "HotelListingApi";
         private const string _refreshTokenName = "RefreshToken";
         private readonly IMapper _mapper = mapper;
         private readonly UserManager<ApiUser> _userManager = userManager;
         private readonly IConfiguration _configuration = configuration;
+        private readonly ILogger<AuthManager> _logger = logger;
         private ApiUser _user;
 
         public async Task<string> CreateRefreshToken()
@@ -35,6 +38,7 @@ namespace HotelListing.API.Repository
             if (_user!= null && await _userManager.CheckPasswordAsync(_user, loginDto.Password))
             {
                 var token = await GenerateToken();
+                _logger.LogInformation($"Token generated for the user {loginDto.Email}");
                 return new AuthResponseDto
                 {
                     UserID = _user.Id,
@@ -47,7 +51,7 @@ namespace HotelListing.API.Repository
         }
 
         public async Task<IEnumerable<IdentityError>> Register(ApiUserDto apiUserDto)
-        {
+        {                    
             _user  = _mapper.Map<ApiUser>(apiUserDto);
             _user.UserName = apiUserDto.Email;
             var result = await _userManager.CreateAsync(_user, apiUserDto.Password);
