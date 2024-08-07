@@ -1,4 +1,5 @@
-﻿using HotelListing.API.Contracts;
+﻿using AutoMapper;
+using HotelListing.API.Contracts;
 using HotelListing.API.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,9 +9,9 @@ namespace HotelListing.API.Repository
     {
         private readonly HotelListringDbContext _context;
 
-        public HotelRepository(HotelListringDbContext context) : base(context)
+        public HotelRepository(HotelListringDbContext context, IMapper mapper) : base(context, mapper)
         {
-            this._context = context;
+            _context = context;
         }
 
         public async Task<Hotel> GetDetailsAsync(int id) => await _context.Hotels.Include(hotel => hotel.Country).FirstOrDefaultAsync(q => q.Id == id);
