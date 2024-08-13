@@ -2,31 +2,25 @@
 using Microsoft.EntityFrameworkCore;
 using HotelListing.API.Data;
 using AutoMapper;
-using HotelListing.API.Contracts;
-using HotelListing.API.Models.Hotel;
-using HotelListing.API.Models.Country;
-using HotelListing.API.Models;
-using HotelListing.API.Repository;
+using HotelListing.API.Core.Models.Hotel;
+using HotelListing.API.Core.Models;
+using HotelListing.API.Core.Contracts;
 
 namespace HotelListing.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class HotelsController : ControllerBase
+    public class HotelsController(IMapper mapper, IHotelRepository hotelRepository, ILogger<CountriesController> logger) : ControllerBase
     {
-        private readonly IMapper _mapper;
-        private readonly IHotelRepository _hotelRepository;
-
-        public HotelsController(IMapper mapper, IHotelRepository hotelRepository)
-        {
-            _mapper = mapper;
-            _hotelRepository = hotelRepository;
-        }
+        private readonly IMapper _mapper = mapper;
+        private readonly IHotelRepository _hotelRepository = hotelRepository;
+        private readonly ILogger<CountriesController> _logger = logger;
 
         // GET: api/Hotels/?StartIndex=2&PageSize=1
         [HttpGet]
         public async Task<ActionResult<PagedResult<HotelDto>>> GetHotels([FromQuery] QueryParameters queryParameters)
         {
+            _logger.LogInformation("Running GetHotels");
             return Ok(await _hotelRepository.GetAllAsync<HotelDto>(queryParameters));
         }
 

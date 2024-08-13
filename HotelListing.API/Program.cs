@@ -1,11 +1,12 @@
-using HotelListing.API.Configurations;
-using HotelListing.API.Contracts;
+using HotelListing.API.Core.Configurations;
+using HotelListing.API.Core.Contracts;
+using HotelListing.API.Core.Middlewere;
+using HotelListing.API.Core.Repository;
 using HotelListing.API.Data;
-using HotelListing.API.Middlewere;
-using HotelListing.API.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -82,6 +83,11 @@ builder.Services.AddResponseCaching(o =>
 {
     o.MaximumBodySize = 1024;
     o.UseCaseSensitivePaths = true;
+});
+
+builder.Services.AddControllers().AddOData(o => {
+    o.Select().Filter().OrderBy();
+
 });
 
 var app = builder.Build();

@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HotelListing.API.Data;
-using HotelListing.API.Models.Country;
 using AutoMapper;
-using HotelListing.API.Contracts;
 using Microsoft.AspNetCore.Authorization;
-using HotelListing.API.Exceptions;
-using HotelListing.API.Models;
+using HotelListing.API.Core.Models.Country;
+using HotelListing.API.Core.Models;
+using HotelListing.API.Core.Contracts;
+using HotelListing.API.Core.Exceptions;
 
 namespace HotelListing.API.Controllers
 {
@@ -17,7 +17,7 @@ namespace HotelListing.API.Controllers
 
         private readonly IMapper _mapper = mapper;
         private readonly ICountriesRepository _countriesRepository = countriesRepository;
-        private readonly ILogger<CountriesController> _logger = logger;          
+        private readonly ILogger<CountriesController> _logger = logger;
 
         // GET: api/Countries/?StartIndex=2&PageSize=1
         [HttpGet]
