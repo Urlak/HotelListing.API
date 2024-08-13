@@ -1,9 +1,10 @@
-﻿using HotelListing.API.Data;
+﻿using HotelListing.API.Core.Models.Hotel;
+using HotelListing.API.Data;
 
 namespace HotelListing.API.Core.Contracts
 {
     public interface IHotelRepository : IGenericRepository<Hotel>
     {
-        Task<Hotel> GetDetailsAsync(int id);
+        Task<HotelDetailsDto> GetDetails(int id);
     }
 }
