@@ -7,11 +7,13 @@ using HotelListing.API.Core.Models;
 using HotelListing.API.Core.Contracts;
 using HotelListing.API.Core.Models.Country;
 using HotelListing.API.Core.Repository;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HotelListing.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class HotelsController(IMapper mapper, IHotelRepository hotelRepository, ILogger<CountriesController> logger) : ControllerBase
     {
         private readonly IMapper _mapper = mapper;
