@@ -1,13 +1,16 @@
+using HealthChecks.UI.Client;
 using HotelListing.API.Core.Configurations;
 using HotelListing.API.Core.Contracts;
 using HotelListing.API.Core.Middlewere;
 using HotelListing.API.Core.Repository;
 using HotelListing.API.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -122,6 +125,11 @@ builder.Services.AddControllers().AddOData(o =>
     o.Select().Filter().OrderBy();
 
 });
+builder.Services.AddHealthChecks()
+    .AddCheck<CustomHealthCheck>("Custom Health Check", failureStatus: HealthStatus.Degraded, tags: ["custom"])
+    .AddSqlServer(connectionString);
+   // .AddDbContextCheck<HotelListringDbContext>();
+builder.Services.AddHealthChecksUI(o => o.AddHealthCheckEndpoint("Health Checks", "/health")).AddInMemoryStorage();
 
 var app = builder.Build();
 // Configure the HTTP request pipeline.
@@ -130,6 +138,19 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    Predicate = _ => true,
+    ResultStatusCodes =
+        {
+            [HealthStatus.Healthy] = StatusCodes.Status200OK,
+            [HealthStatus.Degraded] = StatusCodes.Status200OK,
+            [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
+        },
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
+app.MapHealthChecksUI();
 
 
 app.UseSerilogRequestLogging();
@@ -158,3 +179,17 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+
+class CustomHealthCheck : IHealthCheck
+{
+    public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+    {
+        var isHealthy = true;
+        if (isHealthy)
+        {
+            return Task.FromResult(HealthCheckResult.Healthy("All good"));
+        }
+        return Task.FromResult(new HealthCheckResult(context.Registration.FailureStatus, "Not good"));
+    }
+}
